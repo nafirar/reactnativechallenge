@@ -1,110 +1,233 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import axios from "axios";
+import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import React, { useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+export default function LoginScreen({ onNavigateToSignup }: any) {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-export default function TabTwoScreen() {
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Email validation
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!email.includes("@") || !email.includes(".")) {
+      newErrors.email = "Please enter a valid email";
+    }
+
+    // Password validation
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleLogin = async () => {
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+      // We'll implement this in Session 2
+      console.log("Login attempt:", { email, password });
+
+      const dataPost = { email, password };
+      console.log("dataPost", dataPost);
+
+      const API_BASE_URL =
+        Platform.OS === "android"
+          ? "http://10.0.2.2:9000"
+          : "http://localhost:9000";
+
+      // const response = await axios.post(
+      //   "http://localhost:9000/login",
+      //   dataPost
+      // );
+      const response = await axios.post(`${API_BASE_URL}/login`, dataPost);
+      console.log("data", response);
+
+      await SecureStore.setItemAsync("accessToken", response.data.accessToken);
+
+      router.push("/page");
+
+      alert("Login successful! (We'll connect to real API in Session 2)");
+    } catch (error) {
+      console.log("error", error);
+      alert("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardView}
+      >
+        <View style={styles.content}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>Sign in to your account</Text>
+          </View>
+
+          {/* Email Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={[styles.input, errors.email && styles.inputError]}
+              placeholder="Enter your email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
+          </View>
+
+          {/* Password Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              style={[styles.input, errors.password && styles.inputError]}
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+            />
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
+          </View>
+
+          {/* Login Button */}
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? "Signing In..." : "Sign In"}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Sign Up Link */}
+          <TouchableOpacity
+            style={styles.linkContainer}
+            onPress={onNavigateToSignup}
+          >
+            <Text style={styles.linkText}>
+              Don't have an account?{" "}
+              <Text style={styles.linkTextBold}>Sign Up</Text>
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: "#f8f9fa",
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  keyboardView: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    justifyContent: "center",
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#1f2937",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#6b7280",
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    backgroundColor: "white",
+  },
+  inputError: {
+    borderColor: "#ef4444",
+  },
+  errorText: {
+    color: "#ef4444",
+    fontSize: 14,
+    marginTop: 4,
+  },
+  button: {
+    backgroundColor: "#3b82f6",
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  buttonDisabled: {
+    backgroundColor: "#9ca3af",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  linkContainer: {
+    alignItems: "center",
+  },
+  linkText: {
+    fontSize: 16,
+    color: "#6b7280",
+  },
+  linkTextBold: {
+    color: "#3b82f6",
+    fontWeight: "600",
   },
 });
