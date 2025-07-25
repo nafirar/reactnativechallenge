@@ -1,7 +1,10 @@
 import { useAuth } from "@/contexts/AuthContext";
-import axios from "axios";
-import { router } from 'expo-router';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
+import { BASE_URL } from "../../config/config";
+
 import {
   KeyboardAvoidingView,
   Platform,
@@ -17,7 +20,9 @@ export default function LoginScreen() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
   const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
@@ -47,13 +52,30 @@ export default function LoginScreen() {
       const dataPost = { email, password };
       const API_BASE_URL =
         Platform.OS === "android"
-          ? "http://192.168.227.69:3000"
-          : "http://localhost:3000";
+          ? `${BASE_URL}`
+          : "http://192.168.227.60:3000";
 
-      const response = await axios.post(`${API_BASE_URL}/login`, dataPost);
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataPost),
+      });
 
-      await login(response.data.accessToken);
+      if (!response.ok) {
+        throw new Error("Login failed");
+      }
 
+      const responseData = await response.json();
+      const accessToken = responseData?.accessToken;
+      if (accessToken) {
+        await SecureStore.setItemAsync("access_token", accessToken);
+        await AsyncStorage.setItem("user_email", email);
+        await login(accessToken); // continue your login flow
+      } else {
+        alert("Access token not received.");
+      }
     } catch (error) {
       console.log("error", error);
       alert("Login failed. Please try again.");
@@ -63,7 +85,7 @@ export default function LoginScreen() {
   };
 
   const navigateToRegister = () => {
-    router.push('/(auth)/register'); // Navigate to register screen
+    router.push("/(auth)/register"); // Navigate to register screen
   };
 
   return (
@@ -125,7 +147,8 @@ export default function LoginScreen() {
             onPress={navigateToRegister}
           >
             <Text style={styles.linkText}>
-              Don't have an account? <Text style={styles.linkTextBold}>Sign Up</Text>
+              Do not have an account?{" "}
+              <Text style={styles.linkTextBold}>Sign Up</Text>
             </Text>
           </TouchableOpacity>
         </View>
@@ -140,18 +163,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f9fa",
   },
   linkTextBold: {
-    color: '#3b82f6',
-    fontWeight: '600',
+    color: "#3b82f6",
+    fontWeight: "600",
   },
   keyboardView: {
     flex: 1,
   },
   linkContainer: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   linkText: {
     fontSize: 16,
-    color: '#6b7280',
+    color: "#6b7280",
   },
   content: {
     flex: 1,

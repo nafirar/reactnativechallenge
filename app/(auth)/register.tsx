@@ -102,7 +102,7 @@ export default function SignupScreen({}: SignupScreenProps) {
 
     setLoading(true);
     try {
-      const response = await fetch("http://192.168.227.69:3000/register", {
+      const response = await fetch("http://192.168.227.60:3000/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
