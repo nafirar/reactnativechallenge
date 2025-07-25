@@ -21,22 +21,22 @@ import { BASE_URL } from "../../config/config";
 
 export default function LoginScreen() {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+  const [errors, setErrors] = useState<{ username?: string; password?: string }>(
     {}
   );
   const [loading, setLoading] = useState(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false); 
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?:string } = {};
+    const newErrors: { username?: string; password?: string } = {};
 
-    if (!email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { 
-      newErrors.email = "Please enter a valid email address";
-    }
+    // if (!username.trim()) {
+    //   newErrors.username = "username is required";
+    // } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) {
+    //   newErrors.username = "Please enter a valid username address";
+    // }
 
     if (!password) {
       newErrors.password = "Password is required";
@@ -53,13 +53,13 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const dataPost = { email, password };
+      const dataPost = { username, password };
       const API_BASE_URL =
         Platform.OS === "android"
           ? `${BASE_URL}`
-          : "http://192.168.227.60:3000";
+          : `${BASE_URL}`;
 
-      const response = await fetch(`${API_BASE_URL}/login`, {
+      const response = await fetch(`${API_BASE_URL}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,17 +68,23 @@ export default function LoginScreen() {
       });
 
       if (!response.ok) {
- 
+
         const errorData = await response.json().catch(() => ({}));
         alert(errorData.message || "Login failed. Please check your credentials.");
-        return; 
+        return;
       }
 
       const responseData = await response.json();
       const accessToken = responseData?.accessToken;
+      const userId = responseData?.id;
       if (accessToken) {
         await SecureStore.setItemAsync("access_token", accessToken);
-        await AsyncStorage.setItem("user_email", email);
+        await AsyncStorage.multiSet([
+          ["username", username],
+          ["id", userId?.toString()]
+        ]);
+        const test = await AsyncStorage.getItem("username");
+        console.log("Saved username:", test);
         await login(accessToken);
       } else {
         alert("Access token not received.");
@@ -104,8 +110,8 @@ export default function LoginScreen() {
         <View style={styles.innerContainer}>
           {/* Header Section */}
           <View style={styles.header}>
-            <Image 
-              source={require('../../assets/images/wahi.png')} 
+            <Image
+              source={require('../../assets/images/wahi.png')}
               style={styles.logo}
             />
             <Text style={styles.subtitle}>
@@ -113,24 +119,24 @@ export default function LoginScreen() {
             </Text>
           </View>
 
-     
+
           <View style={styles.form}>
-   
+
             <View style={styles.inputContainer}>
               <Feather name="mail" size={20} color="#6b7280" style={styles.icon} />
               <TextInput
-                style={[styles.input, errors.email && styles.inputError]}
-                placeholder="Enter your email"
+                style={[styles.input, errors.username && styles.inputError]}
+                placeholder="Enter your username"
                 placeholderTextColor="#9ca3af"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
+            
+                onChangeText={setUsername}
+            
                 autoCapitalize="none"
               />
             </View>
-            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
 
- 
+
             <View style={styles.inputContainer}>
               <Feather name="lock" size={20} color="#6b7280" style={styles.icon} />
               <TextInput
@@ -152,15 +158,15 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
             {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.forgotPasswordContainer}
               onPress={() => router.push('/(auth)/forgot-password')}
             >
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
 
-      
+
             <TouchableOpacity onPress={handleLogin} disabled={loading}>
               <LinearGradient
                 colors={loading ? ["#9ca3af", "#6b7280"] : ["#4f46e5", "#3b82f6"]}
@@ -175,7 +181,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-     
+
           <View style={styles.footer}>
             <TouchableOpacity onPress={navigateToRegister}>
               <Text style={styles.footerText}>
@@ -209,10 +215,10 @@ const styles = StyleSheet.create({
     marginBottom: 50, // You can adjust this spacing
   },
   logo: {
-    width: 250, 
-    height: 250, 
-    resizeMode: 'contain', 
-    marginBottom: 5, 
+    width: 250,
+    height: 250,
+    resizeMode: 'contain',
+    marginBottom: 5,
   },
   title: {
     fontSize: 32,
@@ -235,7 +241,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginTop: 16,
     borderWidth: 1,
-    borderColor: 'transparent', 
+    borderColor: 'transparent',
   },
   icon: {
     marginRight: 8,
@@ -247,7 +253,7 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
   inputError: {
-   
+
     borderColor: "#ef4444",
   },
   errorText: {

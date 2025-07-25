@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -30,9 +30,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false);
   };
 
-  const login = async (token: string) => {
+  const login = async (accessToken: string) => {
     try {
-      await SecureStore.setItemAsync('accessToken', token);
+      await SecureStore.setItemAsync('accessToken', accessToken);
       setIsAuthenticated(true);
       // Navigate to main tabs and reset the navigation stack
       router.replace('/(tabs)');
