@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import * as SecureStore from 'expo-secure-store';
-import { router } from 'expo-router';
+import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -21,10 +21,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuthStatus = async () => {
     try {
-      const token = await SecureStore.getItemAsync('accessToken');
+      const token = await SecureStore.getItemAsync("accessToken");
       setIsAuthenticated(!!token);
     } catch (error) {
-      console.log('Error checking auth status:', error);
+      console.log("Error checking auth status:", error);
       setIsAuthenticated(false);
     }
     setLoading(false);
@@ -32,24 +32,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (token: string) => {
     try {
-      await SecureStore.setItemAsync('accessToken', token);
+      await SecureStore.setItemAsync("accessToken", token);
       setIsAuthenticated(true);
       // Navigate to main tabs and reset the navigation stack
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     } catch (error) {
-      console.log('Error saving token:', error);
+      console.log("Error saving token:", error);
       throw error;
     }
   };
 
   const logout = async () => {
     try {
-      await SecureStore.deleteItemAsync('accessToken');
+      await SecureStore.deleteItemAsync("accessToken");
       setIsAuthenticated(false);
       // Navigate to login screen and reset the navigation stack
-      router.replace('/login');
+      router.replace("/login");
     } catch (error) {
-      console.log('Error removing token:', error);
+      console.log("Error removing token:", error);
     }
   };
 
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

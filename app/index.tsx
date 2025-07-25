@@ -12,7 +12,9 @@ export default function Index() {
     if (!loading && splashFinished) {
       if (isAuthenticated) {
         router.replace("/(tabs)");
+        router.replace("/(tabs)");
       } else {
+        router.replace("/login");
         router.replace("/login");
       }
     }

@@ -86,6 +86,7 @@ export default function LoginScreen() {
 
   const navigateToRegister = () => {
     router.push("/(auth)/register"); // Navigate to register screen
+    router.push("/(auth)/register"); // Navigate to register screen
   };
 
   return (
