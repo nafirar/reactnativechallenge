@@ -57,7 +57,7 @@ export default function LoginScreen() {
       const API_BASE_URL =
         Platform.OS === "android"
           ? `${BASE_URL}`
-          : "http://localhost:3000";
+          : "http://192.168.227.60:3000";
 
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
