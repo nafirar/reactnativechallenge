@@ -132,10 +132,7 @@ const HomeScreen = () => {
         />
       )}
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Ionicons name="log-out-outline" size={22} color="#d9534f" />
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
+      
     </View>
   );
 };
