@@ -24,7 +24,7 @@ function AppContent() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)/login" options={{ headerShown: true, title: "Login" }} />
+        <Stack.Screen name="(auth)/login" options={{ headerShown: false, title: "Login" }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
