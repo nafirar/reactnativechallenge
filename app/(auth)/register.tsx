@@ -1,6 +1,5 @@
 import { BASE_URL } from '@/config/config';
 import { router, Stack } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import React, { useState } from 'react';
 
 import {
@@ -121,12 +120,8 @@ export default function SignupScreen({ }: SignupScreenProps) {
                 throw new Error(data.error || 'Registration failed');
             }
 
-            if (!data.accessToken) {
-                throw new Error('No access token received');
-            }
+           
 
-            // Save token to secure storage
-            await SecureStore.setItemAsync('auth_token', data.accessToken);
 
             Alert.alert('Success', 'Account created successfully!');
             router.replace('/');
