@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import axios from "axios";
+import { router } from 'expo-router';
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -16,11 +17,11 @@ export default function LoginScreen() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{email?: string; password?: string}>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
-    const newErrors: {email?: string; password?: string} = {};
+    const newErrors: { email?: string; password?: string } = {};
 
     if (!email.trim()) {
       newErrors.email = "Email is required";
@@ -50,15 +51,19 @@ export default function LoginScreen() {
           : "http://localhost:3000";
 
       const response = await axios.post(`${API_BASE_URL}/login`, dataPost);
-      
+
       await login(response.data.accessToken);
-      
+
     } catch (error) {
       console.log("error", error);
       alert("Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const navigateToRegister = () => {
+    router.push('/(auth)/register'); // Navigate to register screen
   };
 
   return (
@@ -113,6 +118,16 @@ export default function LoginScreen() {
               {loading ? "Signing In..." : "Sign In"}
             </Text>
           </TouchableOpacity>
+
+          {/* Sign Up Link */}
+          <TouchableOpacity
+            style={styles.linkContainer}
+            onPress={navigateToRegister}
+          >
+            <Text style={styles.linkText}>
+              Don't have an account? <Text style={styles.linkTextBold}>Sign Up</Text>
+            </Text>
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -124,8 +139,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8f9fa",
   },
+  linkTextBold: {
+    color: '#3b82f6',
+    fontWeight: '600',
+  },
   keyboardView: {
     flex: 1,
+  },
+  linkContainer: {
+    alignItems: 'center',
+  },
+  linkText: {
+    fontSize: 16,
+    color: '#6b7280',
   },
   content: {
     flex: 1,
