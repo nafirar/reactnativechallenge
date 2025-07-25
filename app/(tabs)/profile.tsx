@@ -1,4 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext"; // Adjust the import path as necessary
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import {
@@ -10,10 +11,6 @@ import {
   View,
 } from "react-native";
 
-interface User {
-  email: [];
-}
-
 const getToken = async () => {
   try {
     const token = await SecureStore.getItemAsync("accessToken");
@@ -24,10 +21,11 @@ const getToken = async () => {
   }
 };
 
-export default function ProfileScreen({ email }: User) {
+export default function ProfileScreen() {
   const { isAuthenticated } = useAuth();
   //   const { getToken } = useAuth();
-  const [data, setData] = useState(email);
+  const [data, setData] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{
     newErrors?: string;
@@ -48,7 +46,7 @@ export default function ProfileScreen({ email }: User) {
   const handleChange = async () => {
     setLoading(true);
     try {
-      const dataPost = { email };
+      const dataPost = {};
     } catch (error) {
       console.log("error", error);
       alert("Login failed. Please try again.");
@@ -76,9 +74,17 @@ export default function ProfileScreen({ email }: User) {
         }
 
         const result = await response.json();
-        const emailsMap = result.map((user: User) => user.email);
-        const resultString = JSON.stringify(result);
-        setData(emailsMap);
+        const email = await AsyncStorage.getItem("user_email");
+        if (!email) {
+          throw new Error("User email not found in AsyncStorage");
+        }
+        const name = email.replace("@gmail.com", "");
+        const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
+        setData(email);
+        setName(formattedName);
+        // const emailsMap = result.map((user: User) => user.email);
+        // const resultString = JSON.stringify(result);
+        // setData(emailsMap);
         console.log("result", data);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -99,13 +105,8 @@ export default function ProfileScreen({ email }: User) {
           style={styles.profileImage}
         />
         <View style={styles.divider} />
-        <Text style={styles.username}>USER NAME</Text>
-        <Text style={styles.description}>EMAIL INI HARUS</Text>
-
-        <Text style={styles.description}>
-          {" "}
-          `{data} ` || "No name available"
-        </Text>
+        <Text style={styles.username}>{name}</Text>
+        <Text style={styles.description}>{data}</Text>
         <Button title="Change Username" />
       </View>
     </SafeAreaView>
