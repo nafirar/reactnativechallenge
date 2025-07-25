@@ -3,7 +3,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
-import { BASE_URL } from "../../config/config";
 
 import {
   KeyboardAvoidingView,
@@ -52,8 +51,8 @@ export default function LoginScreen() {
       const dataPost = { email, password };
       const API_BASE_URL =
         Platform.OS === "android"
-          ? `${BASE_URL}`
-          : "http://192.168.227.60:3000";
+          ? "http://192.168.227.73:3000"
+          : "http://localhost:3000";
 
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
