@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import axios from "axios";
 import React, { useState } from "react";
 import {
@@ -10,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -46,8 +46,8 @@ export default function LoginScreen() {
       const dataPost = { email, password };
       const API_BASE_URL =
         Platform.OS === "android"
-          ? "http://10.0.2.2:9000"
-          : "http://localhost:9000";
+          ? "http://192.168.227.69:3000"
+          : "http://localhost:3000";
 
       const response = await axios.post(`${API_BASE_URL}/login`, dataPost);
       

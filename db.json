@@ -4,6 +4,18 @@
       "email": "olivier@mail.com",
       "password": "$2a$10$0pON7048xwtvVBKEGIU5AOqPYy1pUVuStNBtIGw7TBXaDulv3Xfzq",
       "id": 1
+    },
+    {
+      "email": "tes@gmaill.com",
+      "password": "$2a$10$zgt00cXtD8tI10ima46nTuObL5Eh5myyNr2H5qzRYhxqJZ9eVHEbS",
+      "name": "nafira",
+      "id": 2
+    },
+    {
+      "email": "tes@gmail.com",
+      "password": "$2a$10$XkZGrsD/QaKa8JnQnVjnLe16OOiuGcOCNmeME4vEvBuUwVkKEr1TW",
+      "name": "nafira",
+      "id": 3
     }
   ]
 }
