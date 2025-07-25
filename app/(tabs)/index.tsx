@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BASE_URL } from '../../config/config';
+import Checkbox from 'expo-checkbox';
 
 interface Todo {
   id: number;
@@ -61,6 +62,13 @@ const HomeScreen = () => {
     fetchTodos();
   }, []);
 
+  const toggleCompleted = (id: number) => {
+    const updatedTodos = todos.map(todo =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    );
+    setTodos(updatedTodos);
+    // Optionally send PATCH request to backend to persist status
+  };
 
   return (
     <View style={styles.container}>
@@ -81,8 +89,16 @@ const HomeScreen = () => {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.todoItem}>
-              <Text style={styles.todoTitle}>{item.todo}</Text>
-              <Text style={styles.todoDesc}>{item.completed}</Text>
+              {/* <Text style={styles.todoTitle}>{item.todo}</Text> */}
+              <Checkbox
+                style={styles.checkbox}
+                value={item.completed}
+                onValueChange={() => toggleCompleted(item.id)}
+                color={item.completed ? '#0d6efd' : undefined}
+              />
+              <Text style={[styles.todoTitle, item.completed && styles.done]}>
+                {item.todo}
+              </Text>
             </View>
           )}
         />
@@ -140,5 +156,13 @@ const styles = StyleSheet.create({
   logoutText: {
     color: 'red',
     fontWeight: 'bold',
+  },
+  checkbox: {
+    alignSelf: 'flex-end',
+    marginRight: 10,
+  },
+  done: {
+    textDecorationLine: 'line-through',
+    color: '#6c757d',
   },
 });
