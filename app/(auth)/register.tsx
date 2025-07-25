@@ -1,6 +1,7 @@
-import { router, Stack } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import React, { useState } from "react";
+import { BASE_URL } from '@/config/config';
+import { router, Stack } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import React, { useState } from 'react';
 
 import {
     Alert, // For a better loading experience
@@ -102,13 +103,13 @@ export default function SignupScreen({ }: SignupScreenProps) {
 
         setLoading(true);
         try {
-            const response = await fetch('http://192.168.227.69:3000/register', {
+            const response = await fetch(`${BASE_URL}/users/add`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    name: formData.name,
+                    username: formData.name,
                     email: formData.email,
                     password: formData.password,
                 }),
