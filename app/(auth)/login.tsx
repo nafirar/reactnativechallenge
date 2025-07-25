@@ -1,7 +1,10 @@
 import { useAuth } from "@/contexts/AuthContext";
-import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import React, { useState } from "react";
+import { BASE_URL } from '../../config/config';
+
 import {
   KeyboardAvoidingView,
   Platform,
@@ -47,12 +50,30 @@ export default function LoginScreen() {
       const dataPost = { email, password };
       const API_BASE_URL =
         Platform.OS === "android"
-          ? "http://192.168.227.69:3000"
+          ? `${BASE_URL}`
           : "http://localhost:3000";
 
-      const response = await axios.post(`${API_BASE_URL}/login`, dataPost);
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataPost),
+      });
 
-      await login(response.data.accessToken);
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+
+      const responseData = await response.json();
+      const accessToken = responseData?.accessToken;
+      if (accessToken) {
+        await SecureStore.setItemAsync("access_token", accessToken);
+        await AsyncStorage.setItem("user_email", email);
+        await login(accessToken); // continue your login flow
+      } else {
+        alert("Access token not received.");
+      }
 
     } catch (error) {
       console.log("error", error);
@@ -61,6 +82,7 @@ export default function LoginScreen() {
       setLoading(false);
     }
   };
+
 
   const navigateToRegister = () => {
     router.push('/(auth)/register'); // Navigate to register screen
